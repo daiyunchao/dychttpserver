@@ -19,6 +19,8 @@ var _mime = _interopRequireDefault(require("mime"));
 
 var _ejs = _interopRequireDefault(require("ejs"));
 
+var _zlib = _interopRequireDefault(require("zlib"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 let {
@@ -52,7 +54,7 @@ class Server {
 
       if (statObj.isFile()) {
         //输出文件
-        this.sendFile(filepath, res);
+        this.sendFile(filepath, req, res);
       } else {
         //是文件夹
         //显示一个文件的列表
@@ -79,16 +81,38 @@ class Server {
     res.statusCode = 200;
     res.setHeader('Content-Type', `text/html;charset=utf-8`);
     res.write(html);
+  } //判断是否需要启用gzip压缩
+
+
+  gzip(req, res) {
+    if (!this.config.gzip) {
+      return false;
+    }
+
+    let acceptEncoding = req.headers['accept-encoding'];
+
+    if (acceptEncoding.indexOf('gzip') > -1) {
+      //说明客户端支持gzip压缩功能
+      res.setHeader('Content-Encoding', 'gzip');
+      return _zlib.default.createGzip();
+    }
+
+    return false;
   }
 
-  sendFile(filepath, res) {
+  sendFile(filepath, req, res) {
     res.statusCode = 200;
 
     let type = _mime.default.getType(filepath);
 
     res.setHeader('Content-Type', `${type};charset=utf-8`);
+    let useGzip = this.gzip(req, res);
 
-    _fs.default.createReadStream(filepath).pipe(res);
+    if (useGzip) {
+      _fs.default.createReadStream(filepath).pipe(useGzip).pipe(res);
+    } else {
+      _fs.default.createReadStream(filepath).pipe(res);
+    }
   }
 
   sendError(e, res) {

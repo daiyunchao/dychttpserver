@@ -12,10 +12,13 @@ _commander.default.version('1.0.0');
 
 _commander.default.option('-p, --port <val>', 'set server listen port');
 
+_commander.default.option('-g, --gzip', 'Serve gzip files when possible[false]');
+
 _commander.default.parse(process.argv);
 
 let config = {
-  port: 8080
+  port: 8080,
+  gzip: false
 };
 Object.assign(config, _commander.default);
 new _server.default(config).start();

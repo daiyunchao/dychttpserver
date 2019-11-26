@@ -5,6 +5,7 @@ import http from 'http';
 import url from 'url'
 import mime from 'mime'
 import ejs from 'ejs'
+import zlib from 'zlib'
 let { stat, readdir, readFile } = fs.promises;
 
 class Server {
@@ -25,7 +26,7 @@ class Server {
       let statObj = await stat(filepath);
       if (statObj.isFile()) {
         //输出文件
-        this.sendFile(filepath, res);
+        this.sendFile(filepath, req, res);
       } else {
         //是文件夹
         //显示一个文件的列表
@@ -48,11 +49,31 @@ class Server {
     res.write(html)
   }
 
-  sendFile(filepath, res) {
+  //判断是否需要启用gzip压缩
+  gzip(req, res) {
+    if (!this.config.gzip) {
+      return false;
+    }
+    let acceptEncoding = req.headers['accept-encoding'];
+    if (acceptEncoding.indexOf('gzip') > -1) {
+      //说明客户端支持gzip压缩功能
+      res.setHeader('Content-Encoding', 'gzip');
+      return zlib.createGzip();
+    }
+    return false;
+
+  }
+  sendFile(filepath, req, res) {
     res.statusCode = 200;
     let type = mime.getType(filepath)
     res.setHeader('Content-Type', `${type};charset=utf-8`);
-    fs.createReadStream(filepath).pipe(res);
+    let useGzip = this.gzip(req, res);
+    if (useGzip) {
+      fs.createReadStream(filepath).pipe(useGzip).pipe(res);
+    } else {
+      fs.createReadStream(filepath).pipe(res);
+    }
+
   }
   sendError(e, res) {
     console.log(e);
