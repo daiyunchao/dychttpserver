@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>文件/文件夹列表</title>
+</head>
+<style>
+  ul{
+    list-style: none;
+  }
+  li{
+    margin: 10px;
+    position: relative;
+  }
+
+</style>
+
+<body>
+  <h2>以下是全部的文件或是文件夹的列表</h2>
+  <ul>
+    <%
+    dirs.forEach(dir=>{
+    %>
+    <li><a href="<%=path+'/'+dir%>"><%=dir%></a></li>
+    <%
+    })
+    %>
+
+  </ul>
+</body>
+
+</html>
