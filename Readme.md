@@ -6,3 +6,8 @@
 2. 在任意目录中使用`dychttpserver`即可
 
 
+#### 已有功能:
+```javascript
+dychttpserver --help
+dychttpserver -p 8081 (默认为8080)
+```
