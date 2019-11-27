@@ -6,6 +6,7 @@ import url from 'url'
 import mime from 'mime'
 import ejs from 'ejs'
 import zlib from 'zlib'
+import open from 'open'
 let { stat, readdir, readFile } = fs.promises;
 
 class Server {
@@ -21,7 +22,7 @@ class Server {
           this.start();
         }
       } else {
-        console.log("err==>",err);
+        console.log("err==>", err);
         throw err;
       }
     })
@@ -93,7 +94,7 @@ class Server {
     let type = mime.getType(filepath)
     res.setHeader('Content-Type', `${type};charset=utf-8`);
     //添加缓存
-    this.cache(filepath,req,res);
+    this.cache(filepath, req, res);
     let useGzip = this.gzip(req, res);
     if (useGzip) {
       fs.createReadStream(filepath).pipe(useGzip).pipe(res);
@@ -118,6 +119,9 @@ Available on:
     http://${this.config.address}:${chalk.green(this.config.port)}
 Hit CTRL-C to stop the server
         `);
+      if (this.config.open) {
+        open(`http://${this.config.address}:${this.config.port}`)
+      }
     });
   }
 

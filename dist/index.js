@@ -18,6 +18,8 @@ _commander.default.option('-c, --cache <val>', 'set cache max-age time [3600]');
 
 _commander.default.option('-g, --gzip', 'Serve gzip files when possible[false]');
 
+_commander.default.option('-o, --open', 'open brower when server start');
+
 _commander.default.parse(process.argv);
 
 let config = {
@@ -25,7 +27,8 @@ let config = {
   gzip: false,
   portIsFixed: false,
   address: "127.0.0.1",
-  cache: 3600
+  cache: 3600,
+  open: false
 };
 Object.assign(config, _commander.default);
 

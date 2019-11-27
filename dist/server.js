@@ -21,6 +21,8 @@ var _ejs = _interopRequireDefault(require("ejs"));
 
 var _zlib = _interopRequireDefault(require("zlib"));
 
+var _open = _interopRequireDefault(require("open"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 let {
@@ -159,6 +161,10 @@ Available on:
     http://${this.config.address}:${_chalk.default.green(this.config.port)}
 Hit CTRL-C to stop the server
         `);
+
+      if (this.config.open) {
+        (0, _open.default)(`http://${this.config.address}:${this.config.port}`);
+      }
     });
   }
 
