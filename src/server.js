@@ -11,6 +11,19 @@ let { stat, readdir, readFile } = fs.promises;
 class Server {
   constructor(config) {
     this.config = config;
+    process.on('uncaughtException', (err) => {
+      if (err && err.code === 'EADDRINUSE') {
+        //端口被占用了
+        if (this.config.portIsFixed) {
+          throw err;
+        } else {
+          this.config.port += 1;
+          this.start();
+        }
+      } else {
+        throw err;
+      }
+    })
   }
   async handlerRequest(req, res) {
     let { pathname } = url.parse(req.url);
@@ -81,18 +94,20 @@ class Server {
     res.end('Not Found');
   }
   start() {
-    http.createServer(this.handlerRequest.bind(this)).listen(this.config.port, (err) => {
+    let server = http.createServer(this.handlerRequest.bind(this));
+    server.listen(this.config.port, (err) => {
       if (err) {
-        return console.log(err);
+        //console.log("err.message==>",err);
+        //return console.log("err.message==>",err.message);
       }
       console.log(`${chalk.yellow('Starting up http-server, serving')} ${chalk.blue('./')}
 Available on:
     http://127.0.0.1:${chalk.green(this.config.port)}
 Hit CTRL-C to stop the server
         `);
-
     });
   }
+
 }
 
 export default Server;

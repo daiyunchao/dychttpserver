@@ -8,8 +8,13 @@ program.parse(process.argv);
 
 let config = {
   port: 8080,
-  gzip: false
+  gzip: false,
+  portIsFixed:false
 }
 
 Object.assign(config, program);
+if (program.port) {
+  //用户自定义port
+  config.portIsFixed=true;
+}
 new Server(config).start()

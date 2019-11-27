@@ -11,4 +11,5 @@
 dychttpserver --help
 dychttpserver -p 8081 (默认为8080)
 dychttpserver -g (是否开启gzip压缩,不传不开启)
+dychttpserver -a (要绑定的地址)
 ```

@@ -32,6 +32,19 @@ let {
 class Server {
   constructor(config) {
     this.config = config;
+    process.on('uncaughtException', err => {
+      if (err && err.code === 'EADDRINUSE') {
+        //端口被占用了
+        if (this.config.portIsFixed) {
+          throw err;
+        } else {
+          this.config.port += 1;
+          this.start();
+        }
+      } else {
+        throw err;
+      }
+    });
   }
 
   async handlerRequest(req, res) {
@@ -122,9 +135,11 @@ class Server {
   }
 
   start() {
-    _http.default.createServer(this.handlerRequest.bind(this)).listen(this.config.port, err => {
-      if (err) {
-        return console.log(err);
+    let server = _http.default.createServer(this.handlerRequest.bind(this));
+
+    server.listen(this.config.port, err => {
+      if (err) {//console.log("err.message==>",err);
+        //return console.log("err.message==>",err.message);
       }
 
       console.log(`${_chalk.default.yellow('Starting up http-server, serving')} ${_chalk.default.blue('./')}

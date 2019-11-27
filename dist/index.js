@@ -18,7 +18,14 @@ _commander.default.parse(process.argv);
 
 let config = {
   port: 8080,
-  gzip: false
+  gzip: false,
+  portIsFixed: false
 };
 Object.assign(config, _commander.default);
+
+if (_commander.default.port) {
+  //用户自定义port
+  config.portIsFixed = true;
+}
+
 new _server.default(config).start();
