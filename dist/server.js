@@ -42,6 +42,7 @@ class Server {
           this.start();
         }
       } else {
+        console.log("err==>", err);
         throw err;
       }
     });
@@ -113,12 +114,24 @@ class Server {
     return false;
   }
 
-  sendFile(filepath, req, res) {
-    res.statusCode = 200;
+  async cache(filepath, req, res) {
+    res.setHeader('Cache-Control', `max-age=${this.config.cache}`);
+    let statObj = await stat(filepath);
+    let time = statObj.ctime;
+    res.setHeader('Last-Modified', time.toString());
+    let ifModifiedSince = req.headers['if-modified-since'];
 
+    if (ifModifiedSince && ifModifiedSince == time) {
+      res.statusCode = 304;
+    }
+  }
+
+  sendFile(filepath, req, res) {
     let type = _mime.default.getType(filepath);
 
-    res.setHeader('Content-Type', `${type};charset=utf-8`);
+    res.setHeader('Content-Type', `${type};charset=utf-8`); //添加缓存
+
+    this.cache(filepath, req, res);
     let useGzip = this.gzip(req, res);
 
     if (useGzip) {

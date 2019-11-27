@@ -21,6 +21,7 @@ class Server {
           this.start();
         }
       } else {
+        console.log("err==>",err);
         throw err;
       }
     })
@@ -31,6 +32,7 @@ class Server {
     //判断是文件还是文件夹
     //如果是文件夹则读取文件夹中的文件列表并显示
     //如果是文件直接输出文件
+
     try {
       if (pathname === '/favicon.ico') {
         return res.end();
@@ -76,10 +78,22 @@ class Server {
     return false;
 
   }
+
+  async cache(filepath, req, res) {
+    res.setHeader('Cache-Control', `max-age=${this.config.cache}`)
+    let statObj = await stat(filepath);
+    let time = statObj.ctime;
+    res.setHeader('Last-Modified', time.toString());
+    let ifModifiedSince = req.headers['if-modified-since'];
+    if (ifModifiedSince && ifModifiedSince == time) {
+      res.statusCode = 304;
+    }
+  }
   sendFile(filepath, req, res) {
-    res.statusCode = 200;
     let type = mime.getType(filepath)
     res.setHeader('Content-Type', `${type};charset=utf-8`);
+    //添加缓存
+    this.cache(filepath,req,res);
     let useGzip = this.gzip(req, res);
     if (useGzip) {
       fs.createReadStream(filepath).pipe(useGzip).pipe(res);

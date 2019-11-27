@@ -14,6 +14,8 @@ _commander.default.option('-p, --port <val>', 'set server listen port');
 
 _commander.default.option('-a, --address <val>', 'set server listen address [127.0.0.1]');
 
+_commander.default.option('-c, --cache <val>', 'set cache max-age time [3600]');
+
 _commander.default.option('-g, --gzip', 'Serve gzip files when possible[false]');
 
 _commander.default.parse(process.argv);
@@ -22,7 +24,8 @@ let config = {
   port: 8080,
   gzip: false,
   portIsFixed: false,
-  address: "127.0.0.1"
+  address: "127.0.0.1",
+  cache: 3600
 };
 Object.assign(config, _commander.default);
 
