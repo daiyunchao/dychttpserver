@@ -137,14 +137,13 @@ class Server {
   start() {
     let server = _http.default.createServer(this.handlerRequest.bind(this));
 
-    server.listen(this.config.port, err => {
-      if (err) {//console.log("err.message==>",err);
-        //return console.log("err.message==>",err.message);
-      }
-
+    server.listen({
+      port: this.config.port,
+      host: this.config.address
+    }, () => {
       console.log(`${_chalk.default.yellow('Starting up http-server, serving')} ${_chalk.default.blue('./')}
 Available on:
-    http://127.0.0.1:${_chalk.default.green(this.config.port)}
+    http://${this.config.address}:${_chalk.default.green(this.config.port)}
 Hit CTRL-C to stop the server
         `);
     });
