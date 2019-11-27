@@ -11,6 +11,8 @@ var _path = _interopRequireDefault(require("path"));
 
 var _chalk = _interopRequireDefault(require("chalk"));
 
+var _https = _interopRequireDefault(require("https"));
+
 var _http = _interopRequireDefault(require("http"));
 
 var _url = _interopRequireDefault(require("url"));
@@ -44,7 +46,6 @@ class Server {
           this.start();
         }
       } else {
-        console.log("err==>", err);
         throw err;
       }
     });
@@ -63,6 +64,8 @@ class Server {
       if (pathname === '/favicon.ico') {
         return res.end();
       }
+
+      console.log(`时间: ${new Date().toLocaleString()}, 访问路径: ${pathname}, 用户代理: ${req.headers["user-agent"]}`);
 
       let filepath = _path.default.join(process.cwd(), pathname);
 
@@ -150,22 +153,51 @@ class Server {
   }
 
   start() {
+    console.log("this.config.ssl===>", this.config.ssl);
+    this.config.ssl ? this.startHttps() : this.startHttp();
+  }
+
+  startHttps() {
+    let certPath = this.config.cert.indexOf("/") == 0 ? this.config.cert : _path.default.join(process.cwd(), this.config.cert);
+    let keyPath = this.config.key.indexOf("/") == 0 ? this.config.key : _path.default.join(process.cwd(), this.config.key);
+
+    let certFile = _fs.default.readFileSync(certPath, 'utf8');
+
+    let keyFile = _fs.default.readFileSync(keyPath, 'utf8');
+
+    let credentials = {
+      key: keyFile,
+      cret: certFile
+    };
+
+    let server = _https.default.createServer(credentials, this.handlerRequest.bind(this));
+
+    server.listen({
+      port: this.config.port,
+      host: this.config.address
+    }, this.startCallback.bind(this));
+  }
+
+  startHttp() {
     let server = _http.default.createServer(this.handlerRequest.bind(this));
 
     server.listen({
       port: this.config.port,
       host: this.config.address
-    }, () => {
-      console.log(`${_chalk.default.yellow('Starting up http-server, serving')} ${_chalk.default.blue('./')}
+    }, this.startCallback.bind(this));
+  }
+
+  startCallback() {
+    let protocol = this.config.ssl ? "https" : "http";
+    console.log(`${_chalk.default.yellow('Starting up dychttpserver, serving')} ${_chalk.default.blue('./')}
 Available on:
-    http://${this.config.address}:${_chalk.default.green(this.config.port)}
+    ${protocol}://${this.config.address}:${_chalk.default.green(this.config.port)}
 Hit CTRL-C to stop the server
         `);
 
-      if (this.config.open) {
-        (0, _open.default)(`http://${this.config.address}:${this.config.port}`);
-      }
-    });
+    if (this.config.open) {
+      (0, _open.default)(`${protocol}://${this.config.address}:${this.config.port}`);
+    }
   }
 
 }

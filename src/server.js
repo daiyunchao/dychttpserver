@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
+import https from 'https';
 import http from 'http';
 import url from 'url'
 import mime from 'mime'
@@ -22,7 +23,6 @@ class Server {
           this.start();
         }
       } else {
-        console.log("err==>", err);
         throw err;
       }
     })
@@ -38,6 +38,9 @@ class Server {
       if (pathname === '/favicon.ico') {
         return res.end();
       }
+
+      console.log(`时间: ${new Date().toLocaleString()}, 访问路径: ${pathname}, 用户代理: ${req.headers["user-agent"]}`);
+
       let filepath = path.join(process.cwd(), pathname);
       let statObj = await stat(filepath);
       if (statObj.isFile()) {
@@ -108,21 +111,47 @@ class Server {
     res.statusCode = 404;
     res.end('Not Found');
   }
+
   start() {
+    console.log("this.config.ssl===>", this.config.ssl);
+
+    this.config.ssl ? this.startHttps() : this.startHttp()
+  }
+  startHttps() {
+    let certPath = this.config.cert.indexOf("/") == 0 ? this.config.cert : path.join(process.cwd(), this.config.cert);
+    let keyPath = this.config.key.indexOf("/") == 0 ? this.config.key : path.join(process.cwd(), this.config.key);
+    let certFile = fs.readFileSync(certPath, 'utf8')
+    let keyFile = fs.readFileSync(keyPath, 'utf8')
+
+    let credentials = {
+      key: keyFile,
+      cret: certFile
+    }
+    let server = https.createServer(credentials, this.handlerRequest.bind(this));
+    server.listen({
+      port: this.config.port,
+      host: this.config.address
+    }, this.startCallback.bind(this));
+  }
+  startHttp() {
     let server = http.createServer(this.handlerRequest.bind(this));
     server.listen({
       port: this.config.port,
       host: this.config.address
-    }, () => {
-      console.log(`${chalk.yellow('Starting up http-server, serving')} ${chalk.blue('./')}
+    }, this.startCallback.bind(this));
+  }
+
+  startCallback() {
+    let protocol = this.config.ssl ? "https" : "http"
+    console.log(`${chalk.yellow('Starting up dychttpserver, serving')} ${chalk.blue('./')}
 Available on:
-    http://${this.config.address}:${chalk.green(this.config.port)}
+    ${protocol}://${this.config.address}:${chalk.green(this.config.port)}
 Hit CTRL-C to stop the server
         `);
-      if (this.config.open) {
-        open(`http://${this.config.address}:${this.config.port}`)
-      }
-    });
+    if (this.config.open) {
+
+      open(`${protocol}://${this.config.address}:${this.config.port}`)
+    }
   }
 
 }

@@ -14,4 +14,10 @@ dychttpserver -g (是否开启gzip压缩,不传不开启)
 dychttpserver -a (要绑定的地址)
 dychttpserver -c (设置缓存的max-age的时间单位秒)
 dychttpserver -o (启动服务器时打开浏览器)
+dychttpserver -S (启动https)
+dychttpserver -C (cert.pem文件位置)
+dychttpserver -K (key.pem文件位置)
+
+//启动https:
+dychttpserver -S -C ./public/cert.crt  -K ./public/key.key -o
 ```

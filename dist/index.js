@@ -20,6 +20,12 @@ _commander.default.option('-g, --gzip', 'Serve gzip files when possible[false]')
 
 _commander.default.option('-o, --open', 'open brower when server start');
 
+_commander.default.option('-S, --ssl', 'enable https');
+
+_commander.default.option('-C, --cert <val>', 'path to ssl cert file[./cert.pem]');
+
+_commander.default.option('-K, --key <val>', 'path to ssl key file[./key.pem]');
+
 _commander.default.parse(process.argv);
 
 let config = {
@@ -28,7 +34,10 @@ let config = {
   portIsFixed: false,
   address: "127.0.0.1",
   cache: 3600,
-  open: false
+  open: false,
+  ssl: false,
+  cert: "./cert.pem",
+  key: "./key.pem"
 };
 Object.assign(config, _commander.default);
 
