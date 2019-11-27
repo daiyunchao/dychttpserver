@@ -65,6 +65,7 @@ class Server {
     let html = ejs.render(templateHtml, { dirs, path: pathname === '/' ? '' : pathname });
     res.statusCode = 200;
     res.setHeader('Content-Type', `text/html;charset=utf-8`);
+    this.cors(res);
     res.write(html)
   }
 
@@ -93,11 +94,18 @@ class Server {
       res.statusCode = 304;
     }
   }
+  cors(res) {
+    if (this.config.cors) {
+      res.setHeader('Access-Control-Allow-Origin', '*')
+    }
+  }
   sendFile(filepath, req, res) {
     let type = mime.getType(filepath)
     res.setHeader('Content-Type', `${type};charset=utf-8`);
     //添加缓存
     this.cache(filepath, req, res);
+    //是否跨域
+    this.cors(res);
     let useGzip = this.gzip(req, res);
     if (useGzip) {
       fs.createReadStream(filepath).pipe(useGzip).pipe(res);

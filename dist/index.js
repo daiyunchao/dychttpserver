@@ -20,6 +20,8 @@ _commander.default.option('-g, --gzip', 'Serve gzip files when possible[false]')
 
 _commander.default.option('-o, --open', 'open brower when server start');
 
+_commander.default.option('--cors', 'enable cors via the access-control-allow-origin header');
+
 _commander.default.option('-S, --ssl', 'enable https');
 
 _commander.default.option('-C, --cert <val>', 'path to ssl cert file[./cert.pem]');
@@ -37,7 +39,8 @@ let config = {
   open: false,
   ssl: false,
   cert: "./cert.pem",
-  key: "./key.pem"
+  key: "./key.pem",
+  cors: false
 };
 Object.assign(config, _commander.default);
 

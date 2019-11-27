@@ -17,6 +17,7 @@ dychttpserver -o (启动服务器时打开浏览器)
 dychttpserver -S (启动https)
 dychttpserver -C (cert.pem文件位置)
 dychttpserver -K (key.pem文件位置)
+dychttpserver --cors (允许跨域)
 
 //启动https:
 dychttpserver -S -C ./public/cert.crt  -K ./public/key.key -o

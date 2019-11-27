@@ -99,6 +99,7 @@ class Server {
 
     res.statusCode = 200;
     res.setHeader('Content-Type', `text/html;charset=utf-8`);
+    this.cors(res);
     res.write(html);
   } //判断是否需要启用gzip压缩
 
@@ -131,12 +132,20 @@ class Server {
     }
   }
 
+  cors(res) {
+    if (this.config.cors) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  }
+
   sendFile(filepath, req, res) {
     let type = _mime.default.getType(filepath);
 
     res.setHeader('Content-Type', `${type};charset=utf-8`); //添加缓存
 
-    this.cache(filepath, req, res);
+    this.cache(filepath, req, res); //是否跨域
+
+    this.cors(res);
     let useGzip = this.gzip(req, res);
 
     if (useGzip) {

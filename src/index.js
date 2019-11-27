@@ -7,7 +7,7 @@ program.option('-a, --address <val>', 'set server listen address [127.0.0.1]');
 program.option('-c, --cache <val>', 'set cache max-age time [3600]');
 program.option('-g, --gzip', 'Serve gzip files when possible[false]')
 program.option('-o, --open', 'open brower when server start')
-
+program.option('--cors', 'enable cors via the access-control-allow-origin header')
 program.option('-S, --ssl', 'enable https')
 program.option('-C, --cert <val>', 'path to ssl cert file[./cert.pem]');
 program.option('-K, --key <val>', 'path to ssl key file[./key.pem]');
@@ -22,7 +22,8 @@ let config = {
   open: false,
   ssl: false,
   cert: "./cert.pem",
-  key: "./key.pem"
+  key: "./key.pem",
+  cors: false,
 }
 
 Object.assign(config, program);
